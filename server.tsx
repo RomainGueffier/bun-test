@@ -49,10 +49,19 @@ Bun.serve({
       if (!route) return new Response('Unknown error', { status: 500 })
 
       const Component = await import(match.filePath)
-      const stream = await renderToReadableStream(<Component.default />, {
-        bootstrapScriptContent: `globalThis.PATH_TO_PAGE = "/src/pages/${route.src}";`,
-        bootstrapModules: ['/hydrate.js'],
-      })
+      const stream = await renderToReadableStream(
+        <Component.default params={route.params} query={route.query} />,
+        {
+          bootstrapScriptContent: `
+            globalThis.PAGE_PATH = "/src/pages/${route.src}";
+            globalThis.PAGE_PROPS = JSON.parse('${JSON.stringify({
+              params: route.params,
+              query: route.query,
+            })}')
+          `,
+          bootstrapModules: ['/hydrate.js'],
+        },
+      )
 
       return new Response(stream, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
