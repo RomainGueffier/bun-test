@@ -1,20 +1,20 @@
-import { renderToReadableStream } from 'react-dom/server'
-import postcss from 'postcss'
 import autoprefixer from 'autoprefixer'
+import postcss from 'postcss'
+import { renderToReadableStream } from 'react-dom/server'
 import tailwindcss from 'tailwindcss'
 
 const PROJECT_ROOT = import.meta.dir
-const PUBLIC_DIR = PROJECT_ROOT + '/public'
-const BUILD_DIR = PROJECT_ROOT + '/.cache'
+const PUBLIC_DIR = `${PROJECT_ROOT}/public`
+const BUILD_DIR = `${PROJECT_ROOT}/.cache`
 
 const fileRouter = new Bun.FileSystemRouter({
-  dir: PROJECT_ROOT + '/src/pages',
+  dir: `${PROJECT_ROOT}/src/pages`,
   style: 'nextjs',
 })
 
 await Bun.build({
   entrypoints: [
-    import.meta.dir + '/hydrate.tsx',
+    `${import.meta.dir}/hydrate.tsx`,
     ...Object.values(fileRouter.routes),
   ],
   outdir: BUILD_DIR,
@@ -22,21 +22,21 @@ await Bun.build({
   splitting: true,
 })
 
-const stylesFile = Bun.file(PROJECT_ROOT + '/src/styles/globals.css')
+const stylesFile = Bun.file(`${PROJECT_ROOT}/src/styles/globals.css`)
 postcss([autoprefixer, tailwindcss])
   .process(await stylesFile.text(), {
-    from: PROJECT_ROOT + '/src/styles/globals.css',
-    to: BUILD_DIR + '/styles.css',
+    from: `${PROJECT_ROOT}/src/styles/globals.css`,
+    to: `${BUILD_DIR}/styles.css`,
   })
   .then((result) => {
-    Bun.write(BUILD_DIR + '/styles.css', result.css)
+    Bun.write(`${BUILD_DIR}/styles.css`, result.css)
     if (result.map) {
-      Bun.write(BUILD_DIR + '/styles.css.map', result.map.toString())
+      Bun.write(`${BUILD_DIR}/styles.css.map`, result.map.toString())
     }
   })
 
 const cacheRouter = new Bun.FileSystemRouter({
-  dir: BUILD_DIR + '/src/pages',
+  dir: `${BUILD_DIR}/src/pages`,
   style: 'nextjs',
 })
 

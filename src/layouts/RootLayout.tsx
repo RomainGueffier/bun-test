@@ -37,7 +37,7 @@ export default function RootLayout({ meta, children }: RootLayoutProps) {
             </li>
           </ul>
         </nav>
-        <main role="main">{children}</main>
+        <main>{children}</main>
       </body>
     </html>
   )
